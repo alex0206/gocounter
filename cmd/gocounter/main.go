@@ -24,6 +24,10 @@ func main() {
 		go handle(scanner.Text(), &wg, results, handlers)
 	}
 
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+
 	go func() {
 		wg.Wait()
 		close(results)
@@ -54,12 +58,14 @@ func handle(url string, wg *sync.WaitGroup, results chan<- int, handlers <-chan 
 func countGoWords(url string) (goCnt int) {
 	resp, err := http.Get(url)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
 		return
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
 		return
 	}
 
